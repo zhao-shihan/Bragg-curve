@@ -139,9 +139,6 @@ auto dEdxByE(const char dataFilePath[], double targetRange, double deltaX) {
     const auto dEdXGraph{ParseDEDXData(dataFilePath)};
     dEdXGraph->DrawClone();
 
-    TGraph result;
-    result.SetName("Bragg_curve");
-
     // Find energy for targetRange (mm) range
     ReverseParticleByE reverseParticleByE{deltaX, *dEdXGraph};
     reverseParticleByE.Initialize(targetRange * mm);
@@ -152,13 +149,14 @@ auto dEdxByE(const char dataFilePath[], double targetRange, double deltaX) {
     std::cout << "Particle with " << energyPerNucleon / MeV << " MeV/u will has " << targetRange << " mm range.\n";
 
     // Calculate Bragg curve
+    TGraph braggCurve;
+    braggCurve.SetName("Bragg_curve");
     ParticleByE particleByE{deltaX, *dEdXGraph};
     particleByE.Initialize(energyPerNucleon);
-    result.AddPoint(particleByE.Range() / mm, particleByE.DEDX() / (MeV / mm));
+    braggCurve.AddPoint(particleByE.Range() / mm, particleByE.DEDX() / (MeV / mm));
     while (not particleByE.Stopped()) {
         particleByE.Step();
-        result.AddPoint(particleByE.Range() / mm, particleByE.DEDX() / (MeV / mm));
+        braggCurve.AddPoint(particleByE.Range() / mm, particleByE.DEDX() / (MeV / mm));
     }
-
-    result.DrawClone();
+    braggCurve.DrawClone();
 }
