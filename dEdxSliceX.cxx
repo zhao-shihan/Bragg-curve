@@ -11,9 +11,9 @@ constexpr double um{1};
 constexpr double mm{1000 * um};
 constexpr double MeV{1};
 
-class ParticleByE {
+class ParticleSliceX {
 public:
-    ParticleByE(double deltaX, const TGraph& dEdXGraph) :
+    ParticleSliceX(double deltaX, const TGraph& dEdXGraph) :
         fDeltaX{deltaX},
         fDEdXGraph{&dEdXGraph},
         fRange{},
@@ -62,9 +62,9 @@ private:
     double fDEDX;
 };
 
-class ReverseParticleByE {
+class ReverseParticleSliceX {
 public:
-    ReverseParticleByE(double deltaX, const TGraph& dEdXGraph) :
+    ReverseParticleSliceX(double deltaX, const TGraph& dEdXGraph) :
         fDeltaX{deltaX},
         fDEdXGraph{&dEdXGraph},
         fDEDX{},
@@ -135,28 +135,28 @@ std::unique_ptr<TGraph> ParseDEDXData(const char filePath[]) {
     return dEdXGraph;
 }
 
-auto dEdxByE(const char dataFilePath[], double targetRange, double deltaX) {
+auto dEdxSliceX(const char dataFilePath[], double targetRange, double deltaX) {
     const auto dEdXGraph{ParseDEDXData(dataFilePath)};
     dEdXGraph->DrawClone();
 
     // Find energy for targetRange (mm) range
-    ReverseParticleByE reverseParticleByE{deltaX, *dEdXGraph};
-    reverseParticleByE.Initialize(targetRange * mm);
-    while (not reverseParticleByE.Returned()) {
-        reverseParticleByE.ReverseStep();
+    ReverseParticleSliceX reverseParticleSliceX{deltaX, *dEdXGraph};
+    reverseParticleSliceX.Initialize(targetRange * mm);
+    while (not reverseParticleSliceX.Returned()) {
+        reverseParticleSliceX.ReverseStep();
     }
-    const auto energyPerNucleon{reverseParticleByE.EnergyPerNucleon()};
+    const auto energyPerNucleon{reverseParticleSliceX.EnergyPerNucleon()};
     std::cout << "Particle with " << energyPerNucleon / MeV << " MeV/u will has " << targetRange << " mm range.\n";
 
     // Calculate Bragg curve
     TGraph braggCurve;
     braggCurve.SetName("Bragg_curve");
-    ParticleByE particleByE{deltaX, *dEdXGraph};
-    particleByE.Initialize(energyPerNucleon);
-    braggCurve.AddPoint(particleByE.Range() / mm, particleByE.DEDX() / (MeV / mm));
-    while (not particleByE.Stopped()) {
-        particleByE.Step();
-        braggCurve.AddPoint(particleByE.Range() / mm, particleByE.DEDX() / (MeV / mm));
+    ParticleSliceX particleSliceX{deltaX, *dEdXGraph};
+    particleSliceX.Initialize(energyPerNucleon);
+    braggCurve.AddPoint(particleSliceX.Range() / mm, particleSliceX.DEDX() / (MeV / mm));
+    while (not particleSliceX.Stopped()) {
+        particleSliceX.Step();
+        braggCurve.AddPoint(particleSliceX.Range() / mm, particleSliceX.DEDX() / (MeV / mm));
     }
     braggCurve.DrawClone();
 }
