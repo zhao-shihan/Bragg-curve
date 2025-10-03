@@ -158,6 +158,7 @@ auto dEdxByE(const char dataFilePath[], double targetRange, double deltaX) {
         reverseParticleByE.ReverseStep();
     }
     const auto energyPerNucleon{reverseParticleByE.EnergyPerNucleon()};
+    std::cout << "Particle with " << energyPerNucleon / MeV << " MeV/u will has " << targetRange << " mm range.\n";
 
     // Calculate Bragg curve
     ParticleByE particleByE{deltaX, *dEdXGraph};
