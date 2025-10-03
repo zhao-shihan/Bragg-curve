@@ -135,15 +135,6 @@ std::unique_ptr<TGraph> ParseDEDXData(const char filePath[]) {
     return dEdXGraph;
 }
 
-auto ComputeRangeByE(double energyPerNucleon, double deltaX, const TGraph& dEdXGraph) -> double {
-    ParticleByE particleByE{deltaX, dEdXGraph};
-    particleByE.Initialize(energyPerNucleon);
-    while (not particleByE.Stopped()) {
-        particleByE.Step();
-    }
-    return particleByE.Range();
-}
-
 auto dEdxByE(const char dataFilePath[], double targetRange, double deltaX) {
     const auto dEdXGraph{ParseDEDXData(dataFilePath)};
     dEdXGraph->DrawClone();
