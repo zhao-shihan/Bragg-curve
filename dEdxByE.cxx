@@ -144,16 +144,16 @@ auto ComputeRangeByE(double energyPerNucleon, double deltaX, const TGraph& dEdXG
     return particleByE.Range();
 }
 
-auto dEdxByE(const char dataFilePath[], double deltaX) {
+auto dEdxByE(const char dataFilePath[], double targetRange, double deltaX) {
     const auto dEdXGraph{ParseDEDXData(dataFilePath)};
     dEdXGraph->DrawClone();
 
     TGraph result;
     result.SetName("Bragg_curve");
 
-    // Find energy for 127mm range
+    // Find energy for targetRange (mm) range
     ReverseParticleByE reverseParticleByE{deltaX, *dEdXGraph};
-    reverseParticleByE.Initialize(127 * mm);
+    reverseParticleByE.Initialize(targetRange * mm);
     while (not reverseParticleByE.Returned()) {
         reverseParticleByE.ReverseStep();
     }
